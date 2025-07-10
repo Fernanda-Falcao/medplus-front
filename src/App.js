@@ -49,13 +49,25 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { motion } from "framer-motion";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { notifySuccess, notifyError, notifyInfo } from "../src/components/utils/Util.js";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  notifySuccess,
+  notifyError,
+  notifyInfo,
+} from "../src/components/utils/Util.js";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
 // Importando imagens para os cards de serviços
 import cardioImg from "../src/assets/images/cards/cardiologista.png";
@@ -67,25 +79,22 @@ import LogoMedPlus from "../src/assets/images/logo/ClinicaMED002.png";
 import equipeImg from "../src/assets/images/cards/EquipeMedica.jpeg";
 import atendimentoImg from "../src/assets/images/cards/CentraldeAtendimento.jpg";
 
-
 // Importando o componente de botão flutuante do WhatsApp
 import WhatsAppFloatingButton from "../src/components/WhatsAppFloatingButton.jsx";
-
 
 // --- Contexto de Autenticação ---
 const AuthContext = createContext(null);
 
-
 // Hook para acessar o contexto
 export const useAuth = () => useContext(AuthContext);
-
 
 // --- Provedor ---
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem("medplus_token"));
+  const [token, setToken] = useState(() =>
+    localStorage.getItem("medplus_token")
+  );
   const [loading, setLoading] = useState(true);
-
 
   // Axios com interceptor
   const api = useMemo(() => {
@@ -107,7 +116,6 @@ export const AuthProvider = ({ children }) => {
     return instance;
   }, []);
 
-
   // Logout
   const logout = useCallback(() => {
     localStorage.removeItem("medplus_token");
@@ -115,7 +123,6 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     toast.info("Sessão encerrada.");
   }, []);
-
 
   // Carrega usuário a partir do token JWT
   const loadUserFromToken = useCallback(
@@ -162,7 +169,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token, loadUserFromToken]);
 
-
   // Login
   const login = async (email, senha) => {
     try {
@@ -181,7 +187,6 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
-  
 
   // Registro
   const registerPaciente = async (pacienteData) => {
@@ -198,7 +203,6 @@ export const AuthProvider = ({ children }) => {
     );
   }
 
-  
   return (
     <AuthContext.Provider
       value={{
@@ -218,7 +222,6 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
 
 // --- Componente de Rota Privada ---
 export const PrivateRoute = ({ children, roles = [] }) => {
@@ -243,7 +246,6 @@ export const PrivateRoute = ({ children, roles = [] }) => {
 
   return children;
 };
-
 
 // --- Componentes de UI ---
 // Navbar com links dinâmicos e tema escuro
@@ -338,15 +340,15 @@ const Navbar = () => {
 
         {isAuthenticated && showDashboardLink && (
           <Menu.Item as={Link} to={getDashboardLink()}>
-            <Icon name="dashboard" /> 
-            <span style={{ fontWeight: 'bold' }}> Meu Painel </span>
+            <Icon name="dashboard" />
+            <span style={{ fontWeight: "bold" }}> Meu Painel </span>
           </Menu.Item>
         )}
 
         {isAuthenticated && user?.roles?.includes("ROLE_MEDICO") && (
           <Menu.Item as={Link} to="/medico/pacientes">
-            <Icon name="stethoscope" /> 
-            <span style={{ fontWeight: 'bold' }}> Meus Pacientes </span>
+            <Icon name="stethoscope" />
+            <span style={{ fontWeight: "bold" }}> Meus Pacientes </span>
           </Menu.Item>
         )}
 
@@ -439,21 +441,21 @@ const Navbar = () => {
                       icon="users"
                       text="Usuários"
                     />
-                    
+
                     <Dropdown.Item
                       as={Link}
                       to="/admin/gerenciar-consultas"
                       icon="calendar"
                       text="Consultas"
                     />
-                    
+
                     <Dropdown.Item
                       as={Link}
-                      to="/admin/gerenciar-especialidades"  
-                      icon="doctor"  
-                      text="Especialidades"  
+                      to="/admin/gerenciar-especialidades"
+                      icon="doctor"
+                      text="Especialidades"
                     />
-                    
+
                     <Dropdown.Item
                       as={Link}
                       to="/admin/gerenciar-relatorios"
@@ -1275,8 +1277,8 @@ const LoginPage = () => {
     } catch (err) {
       notifyError(
         err.response?.data?.error ||
-        err.response?.data?.message ||
-        "Falha no login. Verifique suas credenciais."
+          err.response?.data?.message ||
+          "Falha no login. Verifique suas credenciais."
       );
     } finally {
       setLoading(false);
@@ -1390,7 +1392,7 @@ const RegisterPacientePage = () => {
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
-    senha: "",
+    password: "",
     cpf: "",
     dataNascimento: "",
     telefone: "",
@@ -1439,12 +1441,16 @@ const RegisterPacientePage = () => {
 
       await registerPaciente(dataToSend);
 
-      notifySuccess("Registro realizado com sucesso! Redirecionando para o login...");
+      notifySuccess(
+        "Registro realizado com sucesso! Redirecionando para o login..."
+      );
       setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
       const errorData = err.response?.data;
       if (errorData?.validationErrors) {
-        const errorMessages = Object.values(errorData.validationErrors).join("\n");
+        const errorMessages = Object.values(errorData.validationErrors).join(
+          "\n"
+        );
         notifyError(errorMessages);
       } else {
         notifyError(errorData?.message || "Ocorreu um erro no registro.");
@@ -1459,13 +1465,20 @@ const RegisterPacientePage = () => {
       <Grid.Column style={{ maxWidth: 1000 }}>
         <Form onSubmit={handleSubmit} loading={loading}>
           <Segment stacked style={{ padding: "3em 2em", borderRadius: "8px" }}>
-            <Header as="h3" color="black" textAlign="center" style={{ marginBottom: "2em" }}>
+            <Header
+              as="h3"
+              color="black"
+              textAlign="center"
+              style={{ marginBottom: "2em" }}
+            >
               <Icon name="user plus" /> Crie sua Conta de Paciente
             </Header>
 
             <Grid stackable columns={2}>
               <Grid.Column>
-                <Header as="h4" dividing>Informações Pessoais</Header>
+                <Header as="h4" dividing>
+                  Informações Pessoais
+                </Header>
                 <Form.Input
                   label="Nome Completo"
                   name="nome"
@@ -1484,12 +1497,13 @@ const RegisterPacientePage = () => {
                 <Form.Input
                   label="Senha"
                   type="password"
-                  name="senha"
-                  value={formData.senha}
+                  name="password" // <-- aqui também deve ser 'password'
+                  value={formData.password}
                   onChange={handleChange}
                   required
                   minLength="6"
                 />
+
                 <Form.Field required>
                   <label>CPF</label>
                   <InputMask
@@ -1523,7 +1537,9 @@ const RegisterPacientePage = () => {
               </Grid.Column>
 
               <Grid.Column>
-                <Header as="h4" dividing>Endereço</Header>
+                <Header as="h4" dividing>
+                  Endereço
+                </Header>
                 <Form.Input
                   label="Logradouro"
                   name="logradouro"
@@ -1716,7 +1732,6 @@ const AgendarConsultaPage = () => {
   );
 };
 
-
 // --- DASHBOARD PACIENTE (ATUALIZADO 22/JUNHO) ---
 const PacienteDashboardPage = () => {
   const { user, api } = useAuth();
@@ -1757,7 +1772,9 @@ const PacienteDashboardPage = () => {
   const handleCancelarConsulta = async () => {
     if (!selectedConsulta) return;
     try {
-      await api.patch(`/pacientes/consultas/${selectedConsulta.id}/cancelar?motivo=Cancelamento pelo paciente`);
+      await api.patch(
+        `/pacientes/consultas/${selectedConsulta.id}/cancelar?motivo=Cancelamento pelo paciente`
+      );
       notifySuccess("Consulta cancelada com sucesso.");
       handleCloseModal();
       fetchConsultas();
@@ -1908,7 +1925,6 @@ const PacienteDashboardPage = () => {
   );
 };
 
-
 // --- PÁGINA DE REAGENDAMENTO DE CONSULTA (NOVA 22/JUNHO) ---
 const ReagendarConsultaPage = () => {
   const { id } = useParams();
@@ -1975,7 +1991,6 @@ const ReagendarConsultaPage = () => {
     </Segment>
   );
 };
-
 
 // --- AGENDA DO MÉDICO (NOVA) ---
 const MedicoAgendaPage = () => {
@@ -2051,16 +2066,19 @@ const MedicoAgendaPage = () => {
   );
 };
 
-
 // --- DASHBOARD MÉDICO (NOVA) ---
 // Helper de formatação de data movido para fora do componente para otimização
 const formatarData = (data) => {
   if (!data) return "Data inválida";
   const date = new Date(data);
-  return date.toLocaleDateString("pt-BR") + " " + date.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return (
+    date.toLocaleDateString("pt-BR") +
+    " " +
+    date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  );
 };
 
 const MedicoDashboardPage = () => {
@@ -2069,23 +2087,26 @@ const MedicoDashboardPage = () => {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchDashboardData = useCallback(async (isBackgroundRefresh = false) => {
-    if (!user) return;
+  const fetchDashboardData = useCallback(
+    async (isBackgroundRefresh = false) => {
+      if (!user) return;
 
-    try {
-      if (!isBackgroundRefresh) setLoadingInitial(true);
-      else setIsRefreshing(true);
+      try {
+        if (!isBackgroundRefresh) setLoadingInitial(true);
+        else setIsRefreshing(true);
 
-      const response = await api.get("/medicos/dashboard");
-      setDashboardData(response.data);
-    } catch (err) {
-      console.error("Erro ao carregar dados do dashboard:", err);
-      toast.error("Não foi possível carregar os dados do dashboard.");
-    } finally {
-      setLoadingInitial(false);
-      setIsRefreshing(false);
-    }
-  }, [user, api]);
+        const response = await api.get("/medicos/dashboard");
+        setDashboardData(response.data);
+      } catch (err) {
+        console.error("Erro ao carregar dados do dashboard:", err);
+        toast.error("Não foi possível carregar os dados do dashboard.");
+      } finally {
+        setLoadingInitial(false);
+        setIsRefreshing(false);
+      }
+    },
+    [user, api]
+  );
 
   useEffect(() => {
     fetchDashboardData(false);
@@ -2103,8 +2124,16 @@ const MedicoDashboardPage = () => {
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Header as="h1" style={{ margin: 0 }}>Dashboard do Médico</Header>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Header as="h1" style={{ margin: 0 }}>
+          Dashboard do Médico
+        </Header>
         <Button
           onClick={() => fetchDashboardData(true)}
           loading={isRefreshing}
@@ -2119,7 +2148,7 @@ const MedicoDashboardPage = () => {
         </Button>
       </div>
 
-      <p style={{ marginTop: '0.5em' }}>
+      <p style={{ marginTop: "0.5em" }}>
         Bem-vindo(a), Dr(a). {user?.email || "usuário"}!
       </p>
       <Divider />
@@ -2127,7 +2156,10 @@ const MedicoDashboardPage = () => {
       {loadingInitial ? (
         <Loader active inline="centered" content="Carregando informações..." />
       ) : !dashboardData ? (
-        <Message warning content="Não foi possível carregar as informações do dashboard." />
+        <Message
+          warning
+          content="Não foi possível carregar as informações do dashboard."
+        />
       ) : (
         <Grid columns={2} stackable divided>
           <Grid.Row>
@@ -2137,7 +2169,8 @@ const MedicoDashboardPage = () => {
               <Statistic.Group widths="two" size="small">
                 <Statistic>
                   <Statistic.Value>
-                    <Icon name="calendar check outline" /> {dashboardData.consultasHoje ?? 0}
+                    <Icon name="calendar check outline" />{" "}
+                    {dashboardData.consultasHoje ?? 0}
                   </Statistic.Value>
                   <Statistic.Label>Consultas Hoje</Statistic.Label>
                 </Statistic>
@@ -2171,11 +2204,16 @@ const MedicoDashboardPage = () => {
                 <List divided relaxed>
                   {dashboardData.proximasConsultas.map((consulta) => (
                     <List.Item key={consulta.id}>
-                      <List.Icon name="user circle" size="large" verticalAlign="middle" />
+                      <List.Icon
+                        name="user circle"
+                        size="large"
+                        verticalAlign="middle"
+                      />
                       <List.Content>
                         <List.Header>{consulta.pacienteNome}</List.Header>
                         <List.Description>
-                          {formatarData(consulta.dataHora)} - Status: {consulta.status}
+                          {formatarData(consulta.dataHora)} - Status:{" "}
+                          {consulta.status}
                         </List.Description>
                       </List.Content>
                     </List.Item>
@@ -2191,7 +2229,6 @@ const MedicoDashboardPage = () => {
     </Segment>
   );
 };
-
 
 // --- PÁGINA DE PACIENTES DO MÉDICO (NOVA) ---
 const MedicoPacientesPage = () => {
@@ -2232,9 +2269,13 @@ const MedicoPacientesPage = () => {
         Meus Pacientes
       </Header>
 
-      {loading && <Loader active inline="centered" content="Carregando pacientes..." />}
+      {loading && (
+        <Loader active inline="centered" content="Carregando pacientes..." />
+      )}
       {error && <Message error content={error} />}
-      {!loading && pacientes.length === 0 && <p>Você ainda não atendeu nenhum paciente.</p>}
+      {!loading && pacientes.length === 0 && (
+        <p>Você ainda não atendeu nenhum paciente.</p>
+      )}
 
       {!loading && pacientes.length > 0 && (
         <Table celled>
@@ -2274,7 +2315,6 @@ const MedicoPacientesPage = () => {
   );
 };
 
-
 //--- PAGINA DO PERFIL ---
 // Componente da página de perfil do usuário
 const UserProfilePage = () => {
@@ -2286,7 +2326,10 @@ const UserProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
-  const [confirmModal, setConfirmModal] = useState({ open: false, action: null });
+  const [confirmModal, setConfirmModal] = useState({
+    open: false,
+    action: null,
+  });
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -2323,8 +2366,8 @@ const UserProfilePage = () => {
   }, [fetchProfile]);
 
   const handleInputChange = (e, { name, value }) => {
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
       setFormData((prev) => ({
         ...prev,
         [parent]: { ...prev[parent], [child]: value },
@@ -2335,7 +2378,8 @@ const UserProfilePage = () => {
   };
 
   const cleanCPF = (cpf) => cpf.replace(/\D/g, "");
-  const cleanPhone = (tel) => tel.replace(/\D/g, "").replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+  const cleanPhone = (tel) =>
+    tel.replace(/\D/g, "").replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -2372,7 +2416,8 @@ const UserProfilePage = () => {
       await fetchProfile();
     } catch (err) {
       console.error("Erro ao salvar perfil:", err);
-      const msg = err.response?.data?.message || "Erro ao salvar as alterações.";
+      const msg =
+        err.response?.data?.message || "Erro ao salvar as alterações.";
       toast.error(msg);
     } finally {
       setIsSaving(false);
@@ -2383,11 +2428,14 @@ const UserProfilePage = () => {
     setIsSaving(true);
     try {
       await api.delete("/perfil");
-      toast.success("Sua conta foi excluída com sucesso. Você será desconectado.");
+      toast.success(
+        "Sua conta foi excluída com sucesso. Você será desconectado."
+      );
       setTimeout(() => logout(), 3000);
     } catch (err) {
       console.error("Erro ao excluir conta:", err);
-      const msg = err.response?.data?.message || "Não foi possível excluir sua conta.";
+      const msg =
+        err.response?.data?.message || "Não foi possível excluir sua conta.";
       toast.error(msg);
     } finally {
       setIsSaving(false);
@@ -2407,7 +2455,8 @@ const UserProfilePage = () => {
   };
 
   const openConfirmModal = (action) => setConfirmModal({ open: true, action });
-  const closeConfirmModal = () => setConfirmModal({ open: false, action: null });
+  const closeConfirmModal = () =>
+    setConfirmModal({ open: false, action: null });
   const onConfirm = () => {
     const { action } = confirmModal;
     closeConfirmModal();
@@ -2419,16 +2468,29 @@ const UserProfilePage = () => {
   if (loading)
     return (
       <Segment basic padded="very">
-        <Loader active inline="centered" size="large" content="Carregando seu perfil..." />
+        <Loader
+          active
+          inline="centered"
+          size="large"
+          content="Carregando seu perfil..."
+        />
       </Segment>
     );
 
   if (!profileData)
-    return <Message error header="Erro" content="Não foi possível carregar os dados do perfil." />;
+    return (
+      <Message
+        error
+        header="Erro"
+        content="Não foi possível carregar os dados do perfil."
+      />
+    );
 
-  const formatCPF = (cpf) => cpf?.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+  const formatCPF = (cpf) =>
+    cpf?.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
   const formatRG = (rg) => rg?.replace(/^(\d{1,2})(\d{3})(\d{3})$/, "$1.$2.$3");
-  const formatTelefone = (tel) => tel?.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+  const formatTelefone = (tel) =>
+    tel?.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
   const formatDateForInput = (dateString) => {
     const date = new Date(dateString);
     const timezoneOffset = date.getTimezoneOffset() * 60000;
@@ -2439,12 +2501,16 @@ const UserProfilePage = () => {
 
   return (
     <>
-      <Segment vertical padded="very" style={{
-        padding: "2em 2em",
-        background: "#f9f9f9",
-        borderRadius: "8px",
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-      }}>
+      <Segment
+        vertical
+        padded="very"
+        style={{
+          padding: "2em 2em",
+          background: "#f9f9f9",
+          borderRadius: "8px",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+        }}
+      >
         <Grid stackable columns={2}>
           <Grid.Column width={5}>
             <Segment textAlign="center">
@@ -2468,7 +2534,9 @@ const UserProfilePage = () => {
                 />
               )}
 
-              <Header as="h2" style={{ marginTop: "0.5em" }}>Minha Foto</Header>
+              <Header as="h2" style={{ marginTop: "0.5em" }}>
+                Minha Foto
+              </Header>
 
               {editMode && (
                 <>
@@ -2495,86 +2563,257 @@ const UserProfilePage = () => {
             <Transition visible={!editMode} animation="fade up" duration={500}>
               <Segment>
                 <Header as="h1" icon="user circle" content="Meu Perfil" />
-                <p>Bem-vindo(a): <strong>{profileData.nome || profileData.email}</strong>!</p>
-                <p>Você está logado como: <strong>{isMedico ? "Médico" : "Paciente"}</strong>.</p>
-                <p>Seu último acesso foi em: {profileData.ultimoAcesso ? new Date(profileData.ultimoAcesso).toLocaleString("pt-BR") : "Nunca"}</p>
-                <p>Data de cadastro: {new Date(profileData.dataCadastro).toLocaleDateString("pt-BR")}</p>
+                <p>
+                  Bem-vindo(a):{" "}
+                  <strong>{profileData.nome || profileData.email}</strong>!
+                </p>
+                <p>
+                  Você está logado como:{" "}
+                  <strong>{isMedico ? "Médico" : "Paciente"}</strong>.
+                </p>
+                <p>
+                  Seu último acesso foi em:{" "}
+                  {profileData.ultimoAcesso
+                    ? new Date(profileData.ultimoAcesso).toLocaleString("pt-BR")
+                    : "Nunca"}
+                </p>
+                <p>
+                  Data de cadastro:{" "}
+                  {new Date(profileData.dataCadastro).toLocaleDateString(
+                    "pt-BR"
+                  )}
+                </p>
 
                 <Divider horizontal>Dados do Perfil</Divider>
-                <p><strong>ID:</strong> {profileData.id}</p>
-                <p><strong>Nome:</strong> {profileData.nome}</p>
-                <p><strong>CPF:</strong> {profileData.cpf ? formatCPF(profileData.cpf.replace(/\D/g, "")) : "Não informado"}</p>
-                <p><strong>RG:</strong> {profileData.rg ? formatRG(profileData.rg.replace(/\D/g, "")) : "Não informado"}</p>
-                {isMedico && <p><strong>CRM:</strong> {profileData.crm || "Não informado"}</p>}
-                <p><strong>Data de Nascimento:</strong> {profileData.dataNascimento ? new Date(profileData.dataNascimento).toLocaleDateString("pt-BR") : "Não informado"}</p>
-                <p><strong>Email:</strong> {profileData.email}</p>
-                <p><strong>Telefone:</strong> {profileData.telefone ? formatTelefone(profileData.telefone.replace(/\D/g, "")) : "Não informado"}</p>
+                <p>
+                  <strong>ID:</strong> {profileData.id}
+                </p>
+                <p>
+                  <strong>Nome:</strong> {profileData.nome}
+                </p>
+                <p>
+                  <strong>CPF:</strong>{" "}
+                  {profileData.cpf
+                    ? formatCPF(profileData.cpf.replace(/\D/g, ""))
+                    : "Não informado"}
+                </p>
+                <p>
+                  <strong>RG:</strong>{" "}
+                  {profileData.rg
+                    ? formatRG(profileData.rg.replace(/\D/g, ""))
+                    : "Não informado"}
+                </p>
+                {isMedico && (
+                  <p>
+                    <strong>CRM:</strong> {profileData.crm || "Não informado"}
+                  </p>
+                )}
+                <p>
+                  <strong>Data de Nascimento:</strong>{" "}
+                  {profileData.dataNascimento
+                    ? new Date(profileData.dataNascimento).toLocaleDateString(
+                        "pt-BR"
+                      )
+                    : "Não informado"}
+                </p>
+                <p>
+                  <strong>Email:</strong> {profileData.email}
+                </p>
+                <p>
+                  <strong>Telefone:</strong>{" "}
+                  {profileData.telefone
+                    ? formatTelefone(profileData.telefone.replace(/\D/g, ""))
+                    : "Não informado"}
+                </p>
 
                 <Divider horizontal>Endereço</Divider>
-                <p><strong>Logradouro:</strong> {profileData.endereco?.logradouro || "Não informado"}</p>
-                <p><strong>Número:</strong> {profileData.endereco?.numero || "Não informado"}</p>
-                <p><strong>Complemento:</strong> {profileData.endereco?.complemento || "Não informado"}</p>
-                <p><strong>Bairro:</strong> {profileData.endereco?.bairro || "Não informado"}</p>
-                <p><strong>Cidade:</strong> {profileData.endereco?.cidade || "Não informado"}</p>
-                <p><strong>UF:</strong> {profileData.endereco?.uf || "Não informado"}</p>
-                <p><strong>CEP:</strong> {profileData.endereco?.cep || "Não informado"}</p>
+                <p>
+                  <strong>Logradouro:</strong>{" "}
+                  {profileData.endereco?.logradouro || "Não informado"}
+                </p>
+                <p>
+                  <strong>Número:</strong>{" "}
+                  {profileData.endereco?.numero || "Não informado"}
+                </p>
+                <p>
+                  <strong>Complemento:</strong>{" "}
+                  {profileData.endereco?.complemento || "Não informado"}
+                </p>
+                <p>
+                  <strong>Bairro:</strong>{" "}
+                  {profileData.endereco?.bairro || "Não informado"}
+                </p>
+                <p>
+                  <strong>Cidade:</strong>{" "}
+                  {profileData.endereco?.cidade || "Não informado"}
+                </p>
+                <p>
+                  <strong>UF:</strong>{" "}
+                  {profileData.endereco?.uf || "Não informado"}
+                </p>
+                <p>
+                  <strong>CEP:</strong>{" "}
+                  {profileData.endereco?.cep || "Não informado"}
+                </p>
 
                 <Divider />
-                <Button color="blue" icon="edit" content="Editar" onClick={handleEnterEditMode} disabled={isSaving} />
-                <Button color="red" icon="trash" content="Deletar" onClick={() => openConfirmModal("delete")} disabled={isSaving} />
+                <Button
+                  color="blue"
+                  icon="edit"
+                  content="Editar"
+                  onClick={handleEnterEditMode}
+                  disabled={isSaving}
+                />
+                <Button
+                  color="red"
+                  icon="trash"
+                  content="Deletar"
+                  onClick={() => openConfirmModal("delete")}
+                  disabled={isSaving}
+                />
               </Segment>
             </Transition>
 
             <Transition visible={editMode} animation="fade up" duration={500}>
               <Segment>
                 <Header as="h3">Editar Perfil</Header>
-                <Form onSubmit={(e) => { e.preventDefault(); openConfirmModal("save"); }}>
-                  <Form.Input label="Nome" name="nome" value={formData.nome || ""} onChange={handleInputChange} required />
-                  <Form.Input label="Email" name="email" value={formData.email || ""} disabled />
+                <Form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    openConfirmModal("save");
+                  }}
+                >
+                  <Form.Input
+                    label="Nome"
+                    name="nome"
+                    value={formData.nome || ""}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <Form.Input
+                    label="Email"
+                    name="email"
+                    value={formData.email || ""}
+                    disabled
+                  />
 
                   <Form.Field>
                     <label>CPF</label>
-                    <InputMask mask="999.999.999-99" value={formData.cpf || ""} onChange={(e) => handleInputChange(e, { name: "cpf", value: e.target.value })}>
+                    <InputMask
+                      mask="999.999.999-99"
+                      value={formData.cpf || ""}
+                      onChange={(e) =>
+                        handleInputChange(e, {
+                          name: "cpf",
+                          value: e.target.value,
+                        })
+                      }
+                    >
                       {(inputProps) => <Form.Input {...inputProps} />}
                     </InputMask>
                   </Form.Field>
 
-                  <Form.Input 
-                    label="RG" 
-                    name="rg" 
-                    value={formData.rg || ""} 
-                    onChange={handleInputChange} 
-                    maxLength={20} 
-                    placeholder="Digite seu RG" 
+                  <Form.Input
+                    label="RG"
+                    name="rg"
+                    value={formData.rg || ""}
+                    onChange={handleInputChange}
+                    maxLength={20}
+                    placeholder="Digite seu RG"
                   />
 
-                  <Form.Input 
-                    label="Data de Nascimento" 
-                    name="dataNascimento" 
-                    type="date" 
-                    value={formData.dataNascimento ? formatDateForInput(formData.dataNascimento) : ""} 
-                    onChange={handleInputChange} 
+                  <Form.Input
+                    label="Data de Nascimento"
+                    name="dataNascimento"
+                    type="date"
+                    value={
+                      formData.dataNascimento
+                        ? formatDateForInput(formData.dataNascimento)
+                        : ""
+                    }
+                    onChange={handleInputChange}
                   />
 
                   <Form.Field>
                     <label>Telefone</label>
-                    <InputMask mask="(99) 99999-9999" value={formData.telefone || ""} onChange={(e) => handleInputChange(e, { name: "telefone", value: e.target.value })}>
+                    <InputMask
+                      mask="(99) 99999-9999"
+                      value={formData.telefone || ""}
+                      onChange={(e) =>
+                        handleInputChange(e, {
+                          name: "telefone",
+                          value: e.target.value,
+                        })
+                      }
+                    >
                       {(inputProps) => <Form.Input {...inputProps} />}
                     </InputMask>
                   </Form.Field>
 
                   <Divider horizontal>Endereço</Divider>
-                  <Form.Input label="Logradouro" name="endereco.logradouro" value={formData.endereco?.logradouro || ""} onChange={handleInputChange} />
-                  <Form.Input label="Número" name="endereco.numero" value={formData.endereco?.numero || ""} onChange={handleInputChange} />
-                  <Form.Input label="Complemento" name="endereco.complemento" value={formData.endereco?.complemento || ""} onChange={handleInputChange} />
-                  <Form.Input label="Bairro" name="endereco.bairro" value={formData.endereco?.bairro || ""} onChange={handleInputChange} />
-                  <Form.Input label="Cidade" name="endereco.cidade" value={formData.endereco?.cidade || ""} onChange={handleInputChange} />
-                  <Form.Input label="UF" name="endereco.uf" maxLength="2" value={formData.endereco?.uf || ""} onChange={(e, { value }) => handleInputChange(e, { name: "endereco.uf", value: value.toUpperCase() })} />
-                  <Form.Input label="CEP" name="endereco.cep" value={formData.endereco?.cep || ""} onChange={handleInputChange} />
+                  <Form.Input
+                    label="Logradouro"
+                    name="endereco.logradouro"
+                    value={formData.endereco?.logradouro || ""}
+                    onChange={handleInputChange}
+                  />
+                  <Form.Input
+                    label="Número"
+                    name="endereco.numero"
+                    value={formData.endereco?.numero || ""}
+                    onChange={handleInputChange}
+                  />
+                  <Form.Input
+                    label="Complemento"
+                    name="endereco.complemento"
+                    value={formData.endereco?.complemento || ""}
+                    onChange={handleInputChange}
+                  />
+                  <Form.Input
+                    label="Bairro"
+                    name="endereco.bairro"
+                    value={formData.endereco?.bairro || ""}
+                    onChange={handleInputChange}
+                  />
+                  <Form.Input
+                    label="Cidade"
+                    name="endereco.cidade"
+                    value={formData.endereco?.cidade || ""}
+                    onChange={handleInputChange}
+                  />
+                  <Form.Input
+                    label="UF"
+                    name="endereco.uf"
+                    maxLength="2"
+                    value={formData.endereco?.uf || ""}
+                    onChange={(e, { value }) =>
+                      handleInputChange(e, {
+                        name: "endereco.uf",
+                        value: value.toUpperCase(),
+                      })
+                    }
+                  />
+                  <Form.Input
+                    label="CEP"
+                    name="endereco.cep"
+                    value={formData.endereco?.cep || ""}
+                    onChange={handleInputChange}
+                  />
 
                   <Divider />
-                  <Button type="submit" color="green" content="Salvar Alterações" loading={isSaving} disabled={isSaving} />
-                  <Button type="button" onClick={() => openConfirmModal("cancel")} content="Cancelar" disabled={isSaving} />
+                  <Button
+                    type="submit"
+                    color="green"
+                    content="Salvar Alterações"
+                    loading={isSaving}
+                    disabled={isSaving}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => openConfirmModal("cancel")}
+                    content="Cancelar"
+                    disabled={isSaving}
+                  />
                 </Form>
               </Segment>
             </Transition>
@@ -2586,22 +2825,26 @@ const UserProfilePage = () => {
         <Header icon="question circle" content="Confirmar Ação" />
         <Modal.Content>
           <p>
-            {confirmModal.action === "save" && "Tem certeza que deseja salvar as alterações?"}
-            {confirmModal.action === "cancel" && "Deseja cancelar a edição? As alterações não serão salvas."}
-            {confirmModal.action === "delete" && "ATENÇÃO: Esta ação é irreversível. Tem certeza que deseja excluir sua conta?"}
+            {confirmModal.action === "save" &&
+              "Tem certeza que deseja salvar as alterações?"}
+            {confirmModal.action === "cancel" &&
+              "Deseja cancelar a edição? As alterações não serão salvas."}
+            {confirmModal.action === "delete" &&
+              "ATENÇÃO: Esta ação é irreversível. Tem certeza que deseja excluir sua conta?"}
           </p>
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={closeConfirmModal} content="Não" />
-          <Button color={confirmModal.action === "delete" ? "red" : "green"} onClick={onConfirm} content="Sim" />
+          <Button
+            color={confirmModal.action === "delete" ? "red" : "green"}
+            onClick={onConfirm}
+            content="Sim"
+          />
         </Modal.Actions>
       </Modal>
     </>
   );
 };
-
-
-
 
 // --- DASHBOARD DO ADMIN (NOVA) ---
 // Registrando os componentes do Chart.js
@@ -2623,7 +2866,7 @@ const AdminDashboardPage = () => {
     usuarios: 0,
     consultas: 0,
     especialidades: 0,
-    consultasMensais: [] // Para gráfico de consultas mensais
+    consultasMensais: [], // Para gráfico de consultas mensais
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -2634,7 +2877,7 @@ const AdminDashboardPage = () => {
       try {
         setLoading(true);
         setError(""); // Limpar erros anteriores
-        const response = await axios.get("/api/admin/dashboard");  // Endereço da API que retorna as estatísticas
+        const response = await axios.get("/api/admin/dashboard"); // Endereço da API que retorna as estatísticas
         setStats(response.data);
       } catch (err) {
         console.error("Erro ao carregar as estatísticas:", err);
@@ -2676,18 +2919,17 @@ const AdminDashboardPage = () => {
         <Icon name="dashboard" style={{ marginRight: "7px" }} />
         Dashboard do Administrador
       </Header>
-      <p>Bem-vindo(a), <strong>{user?.email}</strong>!</p>
       <p>
-        Aqui você poderá gerenciar usuários, consultas, médicos e relatórios do sistema.
+        Bem-vindo(a), <strong>{user?.email}</strong>!
+      </p>
+      <p>
+        Aqui você poderá gerenciar usuários, consultas, médicos e relatórios do
+        sistema.
       </p>
 
       {/* Carregamento ou erro */}
-      {loading && (
-        <Loader active inline="centered" />
-      )}
-      {error && (
-        <Message error header="Erro" content={error} />
-      )}
+      {loading && <Loader active inline="centered" />}
+      {error && <Message error header="Erro" content={error} />}
 
       {/* Gráfico de Consultas Mensais */}
       {!loading && !error && stats.consultasMensais && (
@@ -2698,7 +2940,9 @@ const AdminDashboardPage = () => {
                 <Card.Content>
                   <Card.Header>Consultas Mensais</Card.Header>
                   <Card.Meta>{stats.consultas}</Card.Meta>
-                  <Card.Description>Total de consultas realizadas.</Card.Description>
+                  <Card.Description>
+                    Total de consultas realizadas.
+                  </Card.Description>
                 </Card.Content>
                 <Card.Content extra>
                   <Line data={chartData} />
@@ -2712,14 +2956,18 @@ const AdminDashboardPage = () => {
                 <Card.Content>
                   <Card.Header>Usuários Cadastrados</Card.Header>
                   <Card.Meta>{stats.usuarios}</Card.Meta>
-                  <Card.Description>Total de usuários registrados no sistema.</Card.Description>
+                  <Card.Description>
+                    Total de usuários registrados no sistema.
+                  </Card.Description>
                 </Card.Content>
               </Card>
               <Card>
                 <Card.Content>
                   <Card.Header>Especialidades Cadastradas</Card.Header>
                   <Card.Meta>{stats.especialidades}</Card.Meta>
-                  <Card.Description>Especialidades disponíveis para agendamento.</Card.Description>
+                  <Card.Description>
+                    Especialidades disponíveis para agendamento.
+                  </Card.Description>
                 </Card.Content>
               </Card>
             </Grid.Column>
@@ -2786,7 +3034,6 @@ const AdminDashboardPage = () => {
     </Segment>
   );
 };
-
 
 // --- GERENCIAR USUÁRIOS ADMIN (NOVA) ---
 const AdminGerenciarUsuariosPage = () => {
@@ -2873,7 +3120,7 @@ const AdminGerenciarUsuariosPage = () => {
 
   return (
     <Segment
-     vertical
+      vertical
       style={{
         padding: "2em 2em",
         background: "#f9f9f9",
@@ -3029,8 +3276,6 @@ const AdminGerenciarUsuariosPage = () => {
   );
 };
 
-
-
 // --- GERENCIAR CONSULTAS ADMIN (NOVA) ---
 const AdminGerenciarConsultasPage = () => {
   const { api } = useAuth();
@@ -3048,7 +3293,7 @@ const AdminGerenciarConsultasPage = () => {
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const consultasPerPage = 5;
-  
+
   const navigate = useNavigate(); // Navegação
 
   const fetchConsultas = useCallback(async () => {
@@ -3085,9 +3330,7 @@ const AdminGerenciarConsultasPage = () => {
     try {
       setLoadingDeleteId(consultaId);
       await api.delete(`/admin/consultas/${consultaId}`);
-      setConsultas((prev) =>
-        prev.filter((c) => c.id !== consultaId)
-      );
+      setConsultas((prev) => prev.filter((c) => c.id !== consultaId));
       setConfirmModal({ open: false, consultaId: null });
       toast.success(
         <>
@@ -3131,8 +3374,12 @@ const AdminGerenciarConsultasPage = () => {
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
       }}
     >
-      <Header as="h2" icon="calendar check" content="Gerenciamento de Consultas" />
-      
+      <Header
+        as="h2"
+        icon="calendar check"
+        content="Gerenciamento de Consultas"
+      />
+
       <Button
         icon="plus"
         content="Adicionar Consulta"
@@ -3140,7 +3387,7 @@ const AdminGerenciarConsultasPage = () => {
         onClick={() => navigate("/admin/adicionar-consulta")}
         style={{ marginBottom: "1em" }}
       />
-      
+
       <Input
         icon="search"
         placeholder="Buscar por paciente ou médico..."
@@ -3173,7 +3420,9 @@ const AdminGerenciarConsultasPage = () => {
               {paginatedConsultas.map((consulta) => (
                 <Table.Row key={consulta.id}>
                   <Table.Cell>{consulta.id}</Table.Cell>
-                  <Table.Cell>{new Date(consulta.dataHora).toLocaleString("pt-BR")}</Table.Cell>
+                  <Table.Cell>
+                    {new Date(consulta.dataHora).toLocaleString("pt-BR")}
+                  </Table.Cell>
                   <Table.Cell>{consulta.pacienteNome}</Table.Cell>
                   <Table.Cell>{consulta.medicoNome}</Table.Cell>
                   <Table.Cell>{consulta.status}</Table.Cell>
@@ -3251,7 +3500,6 @@ const AdminGerenciarConsultasPage = () => {
   );
 };
 
-
 // --- GERENCIAR ESPECIALIDADES ADMIN (NOVA) ---
 const AdminGerenciarEspecialidadesPage = () => {
   const { api } = useAuth();
@@ -3269,7 +3517,7 @@ const AdminGerenciarEspecialidadesPage = () => {
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const especialidadesPerPage = 5;
-  
+
   const navigate = useNavigate(); // Navegação
 
   const fetchEspecialidades = useCallback(async () => {
@@ -3306,9 +3554,7 @@ const AdminGerenciarEspecialidadesPage = () => {
     try {
       setLoadingDeleteId(especialidadeId);
       await api.delete(`/admin/especialidades/${especialidadeId}`);
-      setEspecialidades((prev) =>
-        prev.filter((e) => e.id !== especialidadeId)
-      );
+      setEspecialidades((prev) => prev.filter((e) => e.id !== especialidadeId));
       setConfirmModal({ open: false, especialidadeId: null });
     } catch (err) {
       console.error(err);
@@ -3324,7 +3570,9 @@ const AdminGerenciarEspecialidadesPage = () => {
   };
 
   // Paginação
-  const totalPages = Math.ceil(filteredEspecialidades.length / especialidadesPerPage);
+  const totalPages = Math.ceil(
+    filteredEspecialidades.length / especialidadesPerPage
+  );
   const paginatedEspecialidades = filteredEspecialidades.slice(
     (currentPage - 1) * especialidadesPerPage,
     currentPage * especialidadesPerPage
@@ -3340,8 +3588,12 @@ const AdminGerenciarEspecialidadesPage = () => {
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
       }}
     >
-      <Header as="h2" icon="stethoscope" content="Gerenciamento de Especialidades" />
-      
+      <Header
+        as="h2"
+        icon="stethoscope"
+        content="Gerenciamento de Especialidades"
+      />
+
       <Button
         icon="plus"
         content="Adicionar Especialidade"
@@ -3349,7 +3601,7 @@ const AdminGerenciarEspecialidadesPage = () => {
         onClick={() => navigate("/admin/adicionar-especialidade")}
         style={{ marginBottom: "1em" }}
       />
-      
+
       <Input
         icon="search"
         placeholder="Buscar por nome ou descrição..."
@@ -3360,7 +3612,11 @@ const AdminGerenciarEspecialidadesPage = () => {
       />
 
       {loading && (
-        <Loader active inline="centered" content="Carregando especialidades..." />
+        <Loader
+          active
+          inline="centered"
+          content="Carregando especialidades..."
+        />
       )}
       {error && <Message error header="Erro" content={error} />}
 
@@ -3439,7 +3695,9 @@ const AdminGerenciarEspecialidadesPage = () => {
         </Modal.Content>
         <Modal.Actions>
           <Button
-            onClick={() => setConfirmModal({ open: false, especialidadeId: null })}
+            onClick={() =>
+              setConfirmModal({ open: false, especialidadeId: null })
+            }
           >
             Cancelar
           </Button>
@@ -3455,7 +3713,6 @@ const AdminGerenciarEspecialidadesPage = () => {
     </Segment>
   );
 };
-
 
 // --- GERENCIAR RELATÓRIOS ADMIN (NOVA) ---
 const AdminGerenciarRelatoriosPage = () => {
@@ -3474,7 +3731,7 @@ const AdminGerenciarRelatoriosPage = () => {
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const relatoriosPerPage = 5;
-  
+
   const navigate = useNavigate(); // Navegação
 
   const fetchRelatorios = useCallback(async () => {
@@ -3511,9 +3768,7 @@ const AdminGerenciarRelatoriosPage = () => {
     try {
       setLoadingDeleteId(relatorioId);
       await api.delete(`/admin/relatorios/${relatorioId}`);
-      setRelatorios((prev) =>
-        prev.filter((r) => r.id !== relatorioId)
-      );
+      setRelatorios((prev) => prev.filter((r) => r.id !== relatorioId));
       setConfirmModal({ open: false, relatorioId: null });
       toast.success(
         <>
@@ -3566,8 +3821,12 @@ const AdminGerenciarRelatoriosPage = () => {
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
       }}
     >
-      <Header as="h2" icon="file alternate" content="Gerenciamento de Relatórios" />
-      
+      <Header
+        as="h2"
+        icon="file alternate"
+        content="Gerenciamento de Relatórios"
+      />
+
       <Button
         icon="plus"
         content="Adicionar Relatório"
@@ -3575,7 +3834,7 @@ const AdminGerenciarRelatoriosPage = () => {
         onClick={() => navigate("/admin/adicionar-relatorio")}
         style={{ marginBottom: "1em" }}
       />
-      
+
       <Button
         icon="print"
         content="Imprimir Relatórios"
@@ -3583,7 +3842,7 @@ const AdminGerenciarRelatoriosPage = () => {
         onClick={handlePrint} // Chama a função de impressão
         style={{ marginBottom: "1em", marginLeft: "1em" }}
       />
-      
+
       <Input
         icon="search"
         placeholder="Buscar por título ou descrição..."
@@ -3617,7 +3876,9 @@ const AdminGerenciarRelatoriosPage = () => {
                   <Table.Cell>{relatorio.id}</Table.Cell>
                   <Table.Cell>{relatorio.titulo}</Table.Cell>
                   <Table.Cell>{relatorio.descricao}</Table.Cell>
-                  <Table.Cell>{new Date(relatorio.data).toLocaleDateString("pt-BR")}</Table.Cell>
+                  <Table.Cell>
+                    {new Date(relatorio.data).toLocaleDateString("pt-BR")}
+                  </Table.Cell>
                   <Table.Cell>
                     <Button
                       icon="edit"
@@ -3692,64 +3953,67 @@ const AdminGerenciarRelatoriosPage = () => {
   );
 };
 
-
-
 // --- ACESSO NÃO AUTORIZADO ---
 const NaoAutorizadoPage = () => (
-    <div style={{
+  <div
+    style={{
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       background: "rgb(255, 255, 255)",
       padding: "10em 2em",
       borderRadius: "8px",
-    }}>
-      <Container text textAlign="center">
-        <Icon
-          name="ban"
-          size="huge"
-          color="red"
-          style={{
-            marginBottom: "0.1em",
-          }}
-        />
+    }}
+  >
+    <Container text textAlign="center">
+      <Icon
+        name="ban"
+        size="huge"
+        color="red"
+        style={{
+          marginBottom: "0.1em",
+        }}
+      />
 
-        <Header as="h1" style={{
+      <Header
+        as="h1"
+        style={{
           fontSize: "1.8em",
           color: "#d63333",
           marginBottom: "0.3em",
-          textShadow: "1px 1px 2px rgba(0,0,0,0.1)"
-        }}>
-          Acesso Negado!
-        </Header>
+          textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
+        }}
+      >
+        Acesso Negado!
+      </Header>
 
-        <p style={{
+      <p
+        style={{
           fontSize: "1em",
           color: "#555",
-          marginBottom: "2em"
-        }}>
-          Você não tem permissão para visualizar esta página. <br />
-          Por favor, verifique suas credenciais ou volte para a página inicial.
-        </p>
+          marginBottom: "2em",
+        }}
+      >
+        Você não tem permissão para visualizar esta página. <br />
+        Por favor, verifique suas credenciais ou volte para a página inicial.
+      </p>
 
-        <Button
-          as={Link}
-          to="/"
-          color="blue"
-          size="huge"
-          style={{
-            padding: "1em 1em",
-            fontWeight: "600",
-            borderRadius: "6px"
-          }}
-        >
-        
+      <Button
+        as={Link}
+        to="/"
+        color="blue"
+        size="huge"
+        style={{
+          padding: "1em 1em",
+          fontWeight: "600",
+          borderRadius: "6px",
+        }}
+      >
         <Icon name="home" style={{ margin: "0em" }} />
       </Button>
     </Container>
   </div>
 );
-
 
 // ######################################################################
 // ## FIM DAS PÁGINAS GERADAS/ATUALIZADAS
@@ -3863,7 +4127,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            
+
             <Route
               path="/admin/gerenciar-relatorios"
               element={
